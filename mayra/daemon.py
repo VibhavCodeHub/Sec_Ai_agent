@@ -14,15 +14,15 @@ def daemon_loop():
     while True:
         # Hotkey check
         if keyboard.is_pressed(config['hotkey']):
-            query = input("Mayra: ") or listen()
+            query = input("Mayra: ")
             if query.startswith(config['wake_word']):
                 query = query[len(config['wake_word'])+1:]
                 print(mayra.respond(query))
         
         # Voice listen loop (non-blocking attempt)
         if config['voice_enabled']:
-            query = listen()
-            if query and config['wake_word'] in query:
+            query = ""
+            if False:
                 query = query.split(config['wake_word'])[1].strip()
                 print(mayra.respond(query))
         

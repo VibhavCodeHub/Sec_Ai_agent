@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mayra"
+version = "1.0.0"
+dependencies = [
+  "psutil",
+  "requests",
+  "click",
+  "SpeechRecognition",
+  "pyttsx3",
+  "pyaudio",
+  "keyboard",
+  "python-daemon",
+  "pywin32"
+]
+
