@@ -28,7 +28,6 @@ class Mayra:
 
     def respond(self, query):
         resp = self.process_query(query)
-        if self.config['voice_enabled']:
-            speak(resp)
+        # Voice disabled: if self.config['voice_enabled']: speak(resp)
         return resp
 
