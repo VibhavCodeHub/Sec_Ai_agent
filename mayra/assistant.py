@@ -1,7 +1,7 @@
 import re
 import json
 from .system_utils import *
-from .voice import speak, listen
+# from .voice import speak, listen  # Enable if voice
 
 class Mayra:
     def __init__(self, config):

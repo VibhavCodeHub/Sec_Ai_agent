@@ -12,7 +12,7 @@ def get_system_info():
         "cpu": platform.processor(),
         "cpu_usage": psutil.cpu_percent(interval=1),
         "memory": psutil.virtual_memory().percent,
-        "disk": psutil.disk_usage('/').percent if platform.system() != 'Windows' else psutil.disk_usage('C:\\').percent
+        "disk": psutil.disk_usage('C:\\' if platform.system() == 'Windows' else '/').percent
     }
 
 def list_dir(path='.'):

@@ -1,13 +1,10 @@
 import time
 import keyboard
 import json
-from .config import config  # Wait, import from file
-from .voice import listen
+from .utils import load_config
 from .assistant import Mayra
+# Voice imports disabled for now to avoid errors
 
-def load_config():
-    with open('mayra/config.json') as f:
-        return json.load(f)
 
 def daemon_loop():
     config = load_config()

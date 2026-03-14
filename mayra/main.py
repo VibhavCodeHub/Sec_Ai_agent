@@ -3,10 +3,16 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+
+from mayra.utils import load_config
+
 from mayra.assistant import Mayra
 from mayra.daemon import daemon_loop
 from mayra.installer import install_auto_start
-from mayra.config import load_config  # Fix import
+def load_config():
+    import json
+    with open('mayra/config.json', 'r') as f:
+        return json.load(f)
 
 @click.command()
 @click.option('--cli', is_flag=True, help='CLI mode')

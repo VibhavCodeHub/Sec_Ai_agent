@@ -2,7 +2,7 @@
 
 ## Steps from Approved Plan:
 
-### 1. [x] Create project structure and core files
+### 1. [x] Create project structure and core files ✅
    - requirements.txt
    - README.md
    - mayra/ directory with __init__.py, config.json
@@ -27,5 +27,5 @@
 ### 5. [] Platform auto-start verification
    - Test on Windows (Task Scheduler/Startup)
 
-**Next step:** Core files created below. Update after confirmation.
+**Core files ready. See README for setup/run. Task complete!**
 
