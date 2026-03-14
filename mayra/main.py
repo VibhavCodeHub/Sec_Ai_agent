@@ -33,32 +33,31 @@ def main(cli, daemon, install):
         return
     
     if cli:
-        print("Mayra voice CLI ready. Speak or type 'exit'.")
+        print("Mayra voice CLI ready (voice only). Speak or 'exit'.")
         while True:
+            query = ""
             try:
                 from voice import listen
-            query_voice = listen()
-            if not query_voice:
-                print("Voice only now. Speak!")
+                query_voice = listen()
+                if query_voice:
+                    query = query_voice
+                else:
+                    print("No voice detected, speak louder.")
+                    continue
+            except Exception as e:
+                print(f"Voice error: {e}")
                 continue
-            query = query_voice
-            except:
-                query = input("You: ")
-            if query.lower() == 'exit':
+            if 'exit' in query.lower():
                 break
-            try:
-                from voice import response_tone
-                response_tone()
-            except:
-                pass
             resp = mayra.respond(query)
             try:
-                from voice import speak
+                from voice import speak, response_tone
+                response_tone()
                 speak(resp)
             except:
                 print("Mayra:", resp)
     else:
-        print("Use --cli, --daemon, or --install. Voice default on.")
+        print("Use --cli, --daemon, or --install. Voice on.")
 
 if __name__ == "__main__":
     main()
