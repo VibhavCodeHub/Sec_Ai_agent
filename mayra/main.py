@@ -33,7 +33,7 @@ def main(cli, daemon, install):
         return
     
     if cli:
-        print("Mayra voice CLI ready (voice only). Speak or 'exit'.")
+        print("Mayra ready. Listening...")  # No intro
         while True:
             query = ""
             try:
@@ -54,8 +54,8 @@ def main(cli, daemon, install):
                 from voice import speak, response_tone
                 response_tone()
                 speak(resp)
-            except:
-                print("Mayra:", resp)
+            except Exception as e:
+                print(f"Mayra: {resp} (voice err: {e})")
     else:
         print("Use --cli, --daemon, or --install. Voice on.")
 
