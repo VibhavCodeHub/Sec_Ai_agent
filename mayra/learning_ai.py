@@ -28,7 +28,7 @@ class LearningMayra:
         self.memory[query.lower()].append(response)
         print("Learned!")
 
-def process(self, query):
+    def process(self, query):
         print("Thinking...")
         q_lower = query.lower()
         self.chat_history.append(q_lower)
@@ -86,6 +86,16 @@ def process(self, query):
                 break
             resp = self.process(query)
             speak(resp)
+
+    def grok_api(self, query):
+        try:
+            import requests
+            url = 'http://localhost:11434/api/generate'  # Ollama
+            payload = {'model': 'llama3', 'prompt': f"Answer in Hindi/English: {query}", 'stream': False}
+            r = requests.post(url, json=payload, timeout=30).json()
+            return r['response']
+        except:
+            return None
 
 if __name__ == '__main__':
     ai = LearningMayra()
