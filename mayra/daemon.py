@@ -8,7 +8,9 @@ from assistant import Mayra
 # Voice imports disabled for now to avoid errors
 
 
-from .voice import activate_tone
+import sys
+sys.path.insert(0, '.')
+from voice import activate_tone
 
 def daemon_loop():
     config = load_config()

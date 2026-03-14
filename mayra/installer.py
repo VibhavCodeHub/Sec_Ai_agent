@@ -1,7 +1,9 @@
 import platform
 import os
 import subprocess
-from .system_utils import safe_run_cmd
+import sys
+sys.path.insert(0, '.')
+from system_utils import safe_run_cmd
 
 def install_auto_start():
     sys = platform.system()
