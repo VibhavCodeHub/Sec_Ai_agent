@@ -11,8 +11,12 @@ from daemon import daemon_loop
 from installer import install_auto_start
 def load_config():
     import json
-    with open('mayra/config.json', 'r') as f:
-        return json.load(f)
+    import os
+    config_path = 'config.json'
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    return {"voice_enabled": False, "admin_mode": True, "wake_word": "mayra", "hotkey": "ctrl+shift+m"}
 
 @click.command()
 @click.option('--cli', is_flag=True, help='CLI mode')
@@ -32,7 +36,7 @@ def main(cli, daemon, install):
     
     if cli:
         while True:
-            query = input("You: ")
+query = listen() or input("You (text): ")
             if query.lower() == 'exit':
                 break
             try:

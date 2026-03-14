@@ -1,41 +1,36 @@
 import speech_recognition as sr
 import pyttsx3
-
-engine = pyttsx3.init()
-recognizer = sr.Recognizer()
-
 import platform
-import winsound  # Windows beep fallback
-try:
-    import simpleaudio as sa
-    TONE_ACTIVATE = None  # Skip file
-except ImportError:
-    TONE_ACTIVATE = None
-    TONE_ACTIVATE = None
+import winsound  # Windows tone fallback
 
-def activate_tone():
-    if TONE_ACTIVATE:
-        play_obj = TONE_ACTIVATE.play()
-        play_obj.wait_done()
-    else:
-        if platform.system() == 'Windows':
-            winsound.Beep(800, 200)  # Activate beep
+r = sr.Recognizer()
+engine = pyttsx3.init()
+engine.setProperty('rate', 150)
+
+def speak(text):
+    print("Mayra:", text)
+    engine.say(text)
+    engine.runAndWait()
+    response_tone()
 
 def response_tone():
     if platform.system() == 'Windows':
-        winsound.Beep(600, 100)  # Response ding
+        winsound.Beep(1000, 200)  # Activate beep
 
-def speak(text):
+def activate_tone():
     response_tone()
-    engine.say(text)
-    engine.runAndWait()
 
 def listen():
-    with sr.Microphone() as source:
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source, timeout=1)
-        try:
-            return recognizer.recognize_google(audio).lower()
-        except:
-            return ""
+    try:
+        with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source, duration=1)
+            print("Listening...")
+            audio = r.listen(source, timeout=5, phrase_time_limit=5)
+            text = r.recognize_google(audio).lower()
+            print("Heard:", text)
+            return text
+    except:
+        return ""
+
+# Default name "Mayra"
 
