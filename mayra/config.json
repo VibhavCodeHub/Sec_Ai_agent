@@ -1,0 +1,6 @@
+{
+    "wake_word": "mayra",
+    "voice_enabled": true,
+    "admin_mode": true,
+    "hotkey": "ctrl+shift+m"
+}
