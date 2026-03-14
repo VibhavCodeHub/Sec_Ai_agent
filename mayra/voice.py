@@ -8,8 +8,9 @@ import platform
 import winsound  # Windows beep fallback
 try:
     import simpleaudio as sa
-TONE_ACTIVATE = None  # Skip file
-except:
+    TONE_ACTIVATE = None  # Skip file
+except ImportError:
+    TONE_ACTIVATE = None
     TONE_ACTIVATE = None
 
 def activate_tone():

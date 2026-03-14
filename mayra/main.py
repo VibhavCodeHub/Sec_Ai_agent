@@ -35,9 +35,12 @@ def main(cli, daemon, install):
             query = input("You: ")
             if query.lower() == 'exit':
                 break
-            from voice import response_tone
+            try:
+                from voice import response_tone
                 response_tone()
-                print("Mayra:", mayra.respond(query))
+            except:
+                pass
+            print("Mayra:", mayra.respond(query))
     else:
         print("Use --cli, --daemon, or --install")
 
