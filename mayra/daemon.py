@@ -1,8 +1,10 @@
 import time
 import keyboard
 import json
-from .utils import load_config
-from .assistant import Mayra
+import sys
+sys.path.insert(0, '.')
+from utils import load_config
+from assistant import Mayra
 # Voice imports disabled for now to avoid errors
 
 

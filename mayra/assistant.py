@@ -1,6 +1,8 @@
 import re
 import json
-from .system_utils import *
+import sys
+sys.path.insert(0, '.')
+from system_utils import *
 # from .voice import speak, listen  # Enable if voice
 
 class Mayra:
