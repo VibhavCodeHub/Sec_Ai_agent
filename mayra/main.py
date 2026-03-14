@@ -3,12 +3,10 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-
-# from mayra.utils import load_config  # Fixed path issue
-
 from assistant import Mayra
 from daemon import daemon_loop
 from installer import install_auto_start
+
 def load_config():
     import json
     import os
@@ -16,7 +14,7 @@ def load_config():
     if os.path.exists(config_path):
         with open(config_path, 'r') as f:
             return json.load(f)
-    return {"voice_enabled": False, "admin_mode": True, "wake_word": "mayra", "hotkey": "ctrl+shift+m"}
+    return {"voice_enabled": True, "admin_mode": True, "wake_word": "mayra", "hotkey": "ctrl+shift+m"}
 
 @click.command()
 @click.option('--cli', is_flag=True, help='CLI mode')
@@ -35,8 +33,17 @@ def main(cli, daemon, install):
         return
     
     if cli:
+        print("Mayra voice CLI ready. Speak or type 'exit'.")
         while True:
-query = listen() or input("You (text): ")
+            try:
+                from voice import listen
+            query_voice = listen()
+            if not query_voice:
+                print("Voice only now. Speak!")
+                continue
+            query = query_voice
+            except:
+                query = input("You: ")
             if query.lower() == 'exit':
                 break
             try:
@@ -44,9 +51,14 @@ query = listen() or input("You (text): ")
                 response_tone()
             except:
                 pass
-            print("Mayra:", mayra.respond(query))
+            resp = mayra.respond(query)
+            try:
+                from voice import speak
+                speak(resp)
+            except:
+                print("Mayra:", resp)
     else:
-        print("Use --cli, --daemon, or --install")
+        print("Use --cli, --daemon, or --install. Voice default on.")
 
 if __name__ == "__main__":
     main()

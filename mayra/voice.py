@@ -26,7 +26,7 @@ def listen():
             r.adjust_for_ambient_noise(source, duration=1)
             print("Listening...")
             audio = r.listen(source, timeout=5, phrase_time_limit=5)
-            text = r.recognize_google(audio).lower()
+            text = r.recognize_google(audio, language='hi-IN').lower()
             print("Heard:", text)
             return text
     except:

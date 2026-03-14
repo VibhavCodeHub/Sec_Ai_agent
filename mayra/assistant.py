@@ -29,10 +29,14 @@ class Mayra:
             match = re.match(pattern, query)
             if match:
                 try:
-                    return handler(match)
+                    result = handler(match)
+                    # Hindi translation fallback
+                    if 'no info' in result.lower() or 'not understood' in result.lower():
+                        return "समझ नहीं आया, सिस्टम info, files या weather ट्राई करें."
+                    return result
                 except Exception as e:
                     return f"Error: {e}"
-        return "Sorry, not understood."
+        return "कृपया सिस्टम info, files, weather या command बोलें."
 
     def respond(self, query):
         resp = self.process_query(query)
