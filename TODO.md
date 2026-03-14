@@ -1,31 +1,16 @@
-# Mayra AI Assistant Implementation TODO
+# Mayra AI Assistant - Enhanced TODO
 
-## Steps from Approved Plan:
+### 1. [x] Core files created/fixed
 
-### 1. [x] Create project structure and core files ✅
-   - requirements.txt
-   - README.md
-   - mayra/ directory with __init__.py, config.json
-   - mayra/assistant.py
-   - mayra/system_utils.py
-   - mayra/voice.py
-   - mayra/daemon.py
-   - mayra/installer.py
-   - mayra/main.py
+### 2. [x] Venv/deps setup
 
-### 2. [] Setup virtual environment
-   - python -m venv mayra/venv
-   - pip install -r requirements.txt
+### 3. [] Enhancements: Tones & name adaptation
+   - Add tones to voice.py
+   - Personalize in assistant.py
+   - Integrate in daemon/main
+   - pip install simpleaudio
 
-### 3. [] Test core functionality
-   - python -m mayra main --cli
+### 4. [] Test tones/personalize
 
-### 4. [] Install and test daemon/admin
-   - python -m mayra installer --install
-   - python -m mayra daemon
-
-### 5. [] Platform auto-start verification
-   - Test on Windows (Task Scheduler/Startup)
-
-**Core files ready. See README for setup/run. Task complete!**
+Next: Implement enhancements.
 

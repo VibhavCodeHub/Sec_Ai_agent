@@ -6,10 +6,13 @@ from .assistant import Mayra
 # Voice imports disabled for now to avoid errors
 
 
+from .voice import activate_tone
+
 def daemon_loop():
     config = load_config()
     mayra = Mayra(config)
     print("Mayra daemon running. Wake with 'mayra' or hotkey.")
+    activate_tone()
     
     while True:
         # Hotkey check
