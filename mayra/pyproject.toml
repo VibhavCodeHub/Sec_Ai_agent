@@ -9,11 +9,16 @@ dependencies = [
   "psutil",
   "requests",
   "click",
-  "SpeechRecognition",
+"SpeechRecognition",
+  "openai",
   "pyttsx3",
   "pyaudio",
   "keyboard",
   "python-daemon",
-  "pywin32"
+  "pywin32",
+  "pvporcupine",
+  "sounddevice",
+  "numpy",
+  "queue"
 ]
 
