@@ -2,5 +2,8 @@
     "wake_word": "mayra",
     "voice_enabled": true,
     "admin_mode": true,
-    "hotkey": "ctrl+shift+m"
+    "hotkey": "ctrl+shift+m",
+    "ollama_host": "http://localhost:11434",
+    "streaming_enabled": true,
+    "hotword_sensitivity": 0.5
 }

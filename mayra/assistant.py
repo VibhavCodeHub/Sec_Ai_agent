@@ -1,63 +1,110 @@
 import re
 import json
 import sys
+import requests
+import random
+from collections import defaultdict
 sys.path.insert(0, '.')
 from system_utils import *
-# from .voice import speak, listen  # Enable if voice
+from utils import load_config, query_queue, response_queue, pop_queue
+from voice import speak
+import threading
+import time
 
-class Mayra:
+class LearningMayra:
     def __init__(self, config):
         self.config = config
-        self.name = None
-        self.intents = {
-            r'hello|hey (\w+) mayra': lambda q: self.set_name(q.group(1)) or f"Hello {q.group(1)}! How can I help?",
-r'(cpu|memory|system|सिस्टम|info|जानकारी)': lambda q: f"हाय {self.name or 'भाई'}, {json.dumps(get_system_info(), indent=2)}",
-            r'list files? (.*)': lambda q: f"Files {self.name or ''}: " + (list_dir(q.group(1)) if q.groups()[0] else list_dir()),
-            r'run (.*)': lambda q: safe_run_cmd(q.group(1)),
-            r'admin (.*)': lambda q: safe_run_cmd(q.group(1), admin=True),
-r'(weather|मौसम) (.*)': lambda q: web_query(q.group(1) if q.groups() else 'delhi'),
-r'(.*)': lambda q: self.live_assist(q.group(1))
-        }
+        self.memory_file = 'mayra_memory.json'
+        self.memory = self.load_memory()
+        self.name = "Mayra"
+        self.chat_history = []
 
-    def set_name(self, name):
-        self.name = name.capitalize()
-        return f"Name set to {self.name}"
+    def load_memory(self):
+        try:
+            with open(self.memory_file, 'r') as f:
+                return defaultdict(list, json.load(f))
+        except:
+            return defaultdict(list)
+
+    def save_memory(self):
+        with open(self.memory_file, 'w') as f:
+            json.dump(dict(self.memory), f)
+
+    def learn(self, query, response):
+        self.memory[query.lower()].append(response)
+        print("✅ Learned!")
+
+    def ollama_stream(self, query):
+        try:
+            url = f"{self.config['ollama_host']}/api/generate"
+            payload = {
+                'model': 'llama3',
+                'prompt': f"You are Mayra, friendly Hindi/English AI assistant. Answer concisely: {query}",
+                'stream': self.config.get('streaming_enabled', True)
+            }
+            response = ''
+            print("🤖 Ollama streaming...")
+            for line in requests.post(url, json=payload, stream=True, timeout=60).iter_lines():
+                if line:
+                    data = json.loads(line)
+                    if 'response' in data:
+                        chunk = data['response']
+                        print(chunk, end='', flush=True)
+                        response += chunk
+                        yield chunk  # For live speak
+                    if data.get('done'):
+                        break
+            print()
+            return response
+        except Exception as e:
+            print(f"Ollama error: {e}")
+            return None
 
     def process_query(self, query):
-        query = query.lower()
-        for pattern, handler in self.intents.items():
-            match = re.match(pattern, query)
-            if match:
-                try:
-                    result = handler(match)
-                    # Hindi translation fallback
-                    if 'no info' in result.lower() or 'not understood' in result.lower():
-                        return "समझ नहीं आया, सिस्टम info, files या weather ट्राई करें."
-                    return result
-                except Exception as e:
-                    return f"Error: {e}"
-        return "कृपया सिस्टम info, files, weather या command बोलें."
+        q_lower = query.lower()
+        self.chat_history.append(q_lower)
 
-    def live_assist(self, query):
-        # Live 'AI' simulation - more talkative, learns cmds
-        q = query.lower()
-        if 'नमस्ते' in q or 'hello' in q:
-            return "नमस्ते भाई! मैं Mayra हूँ, कुछ भी पूछो - system, web, cmds, jokes, stories!"
-        if 'जोक' in q or 'joke' in q:
-            return "एक जोक: Python programmer ने snake देखा और कहा 'class Snake:' 😂"
-        if 'कहानी' in q or 'story' in q:
-            return "एक छोटी कहानी: चंद्रमा पर एक AI गया, बोला 'यहाँ WiFi नहीं!' 😅"
-        if 'learn' in q or 'सीख' in q:
-            self.intents[q.split()[-1]] = lambda m: 'सीख लिया command!'
-            return "नया command सीख लिया! Next time use करो."
-        if 'web search' in q or 'गूगल' in q:
-            from system_utils import web_query
-            search = q.split('search')[-1].strip() or q.split('गूगल')[-1].strip()
-            return web_query(search)
-        return f"भाई, '{q}' अच्छा है! System info बोलो, files list करो, मौसम पूछो या नया learn कराओ. क्या मदद चाहिए?"
+        # Streaming Ollama first
+        stream_resp = self.ollama_stream(query)
+        if stream_resp:
+            self.learn(q_lower, stream_resp)
+            return stream_resp
 
-    def respond(self, query):
-        resp = self.process_query(query)
-        # Voice disabled: if self.config['voice_enabled']: speak(resp)
-        return resp
+        # Fallback intents/learning
+        if re.match(r'(cpu|memory|system|सिस्टम)', q_lower):
+            return json.dumps(get_system_info(), indent=2)
+        elif re.match(r'(weather|मौसम)', q_lower):
+            city = q_lower.split()[-1] or 'delhi'
+            return web_query(city)
+        elif re.match(r'run (.*)', q_lower):
+            cmd = q_lower.split('run ', 1)[1]
+            return safe_run_cmd(cmd)
+        elif q_lower in self.memory:
+            resp = random.choice(self.memory[q_lower])
+            self.learn(q_lower, resp)
+            return resp
+        else:
+            resp = web_query(query) or "Try system info, weather, or speak naturally!"
+            self.learn(q_lower, resp)
+            return resp
 
+    def respond_stream(self, query):
+        resp_gen = self.process_query(query)  # For now sync; enhance later
+        full_resp = ''
+        if hasattr(resp_gen, '__iter__'):
+            for chunk in resp_gen:
+                full_resp += chunk
+                # Live speak chunks
+                threading.Thread(target=speak, args=(chunk,), daemon=True).start()
+                time.sleep(0.1)
+        else:
+            full_resp = resp_gen
+        response_queue.put(full_resp)
+        return full_resp
+
+# Global instance
+config = load_config()
+mayra = LearningMayra(config)
+
+def respond(query):
+    return mayra.respond_stream(query)

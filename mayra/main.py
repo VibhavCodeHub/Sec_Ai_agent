@@ -3,26 +3,20 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from assistant import Mayra
-from daemon import daemon_loop
+from utils import load_config
+from daemon import main_loop as daemon_loop
 from installer import install_auto_start
-
-def load_config():
-    import json
-    import os
-    config_path = 'config.json'
-    if os.path.exists(config_path):
-        with open(config_path, 'r') as f:
-            return json.load(f)
-    return {"voice_enabled": True, "admin_mode": True, "wake_word": "mayra", "hotkey": "ctrl+shift+m"}
+from live_listener import start_listener
+from assistant import respond
+from voice import speak
 
 @click.command()
-@click.option('--cli', is_flag=True, help='CLI mode')
-@click.option('--daemon', is_flag=True, help='Daemon mode')
+@click.option('--cli', is_flag=True, help='CLI mode (blocking)')
+@click.option('--daemon/--no-daemon', default=True, help='Live daemon mode (default)')
+@click.option('--live', is_flag=True, help='Live always-listen CLI mode')
 @click.option('--install', is_flag=True, help='Install auto-start')
-def main(cli, daemon, install):
+def main(cli, daemon, live, install):
     config = load_config()
-    mayra = Mayra(config)
     
     if install:
         install_auto_start()
@@ -32,33 +26,30 @@ def main(cli, daemon, install):
         daemon_loop()
         return
     
-    if cli:
-        print("Mayra ready. Listening...")  # No intro
+    print("🚀 Mayra Live AI ready!")
+    
+    if live:
+        # Live CLI with always-listener
+        listener = start_listener()
+        try:
+            while True:
+                query = input("💭 You: ")
+                if 'exit' in query.lower():
+                    break
+                resp = respond(query)
+                print("Mayra:", resp)
+        finally:
+            listener.stop()
+    elif cli:
+        # Legacy blocking CLI
         while True:
-            query = ""
-            try:
-                from voice import listen
-                query_voice = listen()
-                if query_voice:
-                    query = query_voice
-                else:
-                    print("No voice detected, speak louder.")
-                    continue
-            except Exception as e:
-                print(f"Voice error: {e}")
-                continue
+            query = input("💭 You: ")
             if 'exit' in query.lower():
                 break
-            resp = mayra.respond(query)
-            try:
-                from voice import speak, response_tone
-                response_tone()
-                speak(resp)
-            except Exception as e:
-                print(f"Mayra: {resp} (voice err: {e})")
+            resp = respond(query)
+            print("Mayra:", resp)
     else:
-        print("Use --cli, --daemon, or --install. Voice on.")
+        print("Use --daemon (default), --live, --cli, or --install.")
 
 if __name__ == "__main__":
     main()
-
