@@ -35,7 +35,7 @@ def main(cli, daemon, live, install):
             while True:
                 query = input("💭 You: ")
                 if 'exit' in query.lower():
-                    break
+                ew    break
                 resp = respond(query)
                 print("Mayra:", resp)
         finally:
